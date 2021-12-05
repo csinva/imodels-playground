@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==============================================================================*/
-
+import * as d3 from 'd3';
 /**
  * A node in a neural network. Each node has a state
  * (total input, output, and their respectively derivatives) which changes
@@ -177,18 +177,17 @@ export class Link {
    * @param dest The destination node.
    * @param regularization The regularization function that computes the
    *     penalty for this weight. If null, there will be no regularization.
+   * @param treeDepth
+   * @param initZero
    */
   constructor(source: Node, dest: Node,
-      regularization: RegularizationFunction, initZero?: boolean) {
+              regularization: RegularizationFunction,
+              weightValue: number) {
     this.id = source.id + "-" + dest.id;
     this.source = source;
     this.dest = dest;
     this.regularization = regularization;
-    if (initZero) {
-      this.weight = 0;
-    } else{ /// initialize to 1
-      this.weight = 1;
-    }
+    this.weight = weightValue;
   }
 }
 
@@ -227,18 +226,35 @@ export function buildNetwork(
       } else {
         id++;
       }
+
       let node = new Node(nodeId,
           isOutputLayer ? outputActivation : activation, initZero);
       currentLayer.push(node);
       if (layerIdx >= 1) {
         // Add links from nodes (j) in the previous layer to this node.
         let n_prev = network[layerIdx - 1].length;
-        let random_prev_node_idx = Math.floor(Math.random() * n_prev);
+        let random_prev_node_idx = Math.floor(Math.random() * n_prev); // for layer 1
+        let treeDepth = 3; // tree is formed as an and of this many splits
+        let bucket = d3.shuffle(d3.range(n_prev)).slice(0, treeDepth); // for layer 2
         for (let j = 0; j < n_prev; j++) {
           let prevNode = network[layerIdx - 1][j];
-          let link = new Link(prevNode, node, regularization, true);
-          if (j == random_prev_node_idx) {
-            link = new Link(prevNode, node, regularization, false);
+          let link = new Link(prevNode, node, regularization, 0);
+
+          if (layerIdx == 1) {
+            if (j == random_prev_node_idx) {
+              link = new Link(prevNode, node, regularization, 1);
+            }
+          } else if (layerIdx == 2) {
+            if (bucket.indexOf(j) !== -1){
+              if (Math.random() < 0.5) {
+                link = new Link(prevNode, node, regularization, 1);
+              }
+              else {
+                link = new Link(prevNode, node, regularization, -1);
+              }
+
+            }
+
           }
           prevNode.outputs.push(link);
           node.inputLinks.push(link);
