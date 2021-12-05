@@ -1,0 +1,1 @@
+- code is written in [typescript](https://www.typescriptlang.org/), a type of javascript
