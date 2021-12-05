@@ -139,7 +139,7 @@ export class State {
   showTestData = false;
   noise = 0;
   batchSize = 10;
-  discretize = false;
+  discretize = true;
   tutorial: string = null;
   percTrainData = 50;
   activation = nn.Activations.TANH;
@@ -148,9 +148,9 @@ export class State {
   initZero = false;
   hideText = false;
   collectStats = false;
-  numHiddenLayers = 1;
+  numHiddenLayers = 2;
   hiddenLayerControls: any[] = [];
-  networkShape: number[] = [4, 2];
+  networkShape: number[] = [6, 8];
   x = true;
   y = true;
   xTimesY = false;

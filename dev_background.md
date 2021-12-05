@@ -1,1 +1,3 @@
 - code is written in [typescript](https://www.typescriptlang.org/), a type of javascript
+- all neural-net code is in `nn.ts`
+- default values are at the top of state.ts
