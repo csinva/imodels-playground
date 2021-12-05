@@ -53,6 +53,8 @@ export class Node {
     this.activation = activation;
     if (initZero) {
       this.bias = 0;
+    } else {
+      this.bias = 12 * (Math.random() - 0.5)
     }
   }
 
@@ -184,6 +186,8 @@ export class Link {
     this.regularization = regularization;
     if (initZero) {
       this.weight = 0;
+    } else{ /// initialize to 1
+      this.weight = 1;
     }
   }
 }
@@ -227,10 +231,15 @@ export function buildNetwork(
           isOutputLayer ? outputActivation : activation, initZero);
       currentLayer.push(node);
       if (layerIdx >= 1) {
-        // Add links from nodes in the previous layer to this node.
-        for (let j = 0; j < network[layerIdx - 1].length; j++) {
+        // Add links from nodes (j) in the previous layer to this node.
+        let n_prev = network[layerIdx - 1].length;
+        let random_prev_node_idx = Math.floor(Math.random() * n_prev);
+        for (let j = 0; j < n_prev; j++) {
           let prevNode = network[layerIdx - 1][j];
-          let link = new Link(prevNode, node, regularization, initZero);
+          let link = new Link(prevNode, node, regularization, true);
+          if (j == random_prev_node_idx) {
+            link = new Link(prevNode, node, regularization, false);
+          }
           prevNode.outputs.push(link);
           node.inputLinks.push(link);
         }
